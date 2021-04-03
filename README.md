@@ -17,3 +17,18 @@ vesions too. It wont catch errors yet but that could change in the near future.
 * ~Use of dictionaries~
 * ~JSON dump~
 * Clean up header reading code  
+
+## Major problems
+
+Due to missing values in the rinex file and the problem of finding out how to know which values are missing, the lines containing missing values will not be in the output file.
+The SV will be logged but the "codes" tag will be empty even though some values are present in the input file.
+
+Image 1: ![](https://i.imgur.com/4Srtmd2.png)
+
+(1) In the input file there should be 12 values for 'Gxx' satellites but the first two SVs only show 8. 
+
+Image 2: ![](https://i.imgur.com/F3voTjU.png)
+
+(2) The missing Values are not stored, the SVN however is.
+
+This would not be a problem if the only values missing were at the end of a line. Unfortunately there are many lines with missing values in between which makes it hard for me to programm a filter that knows which value corresponds wo which code.
