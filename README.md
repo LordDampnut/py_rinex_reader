@@ -6,6 +6,10 @@ vesions too. It wont catch errors yet but that could change in the near future.
 
 # ToDo
 * ~JSON output file~
+* CLI input arguments
+  * define filename
+  * define output filename
+  * define number of epochs to be converted?
 * GUI with some sort of interaction
     * Load different RINEX file?
     * DIsplay metadata of choosen file?
