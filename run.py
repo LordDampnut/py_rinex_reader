@@ -1,7 +1,7 @@
-import os
-import numpy as np
+# import os
+# import numpy as np
 import json
-import params
+# import params
 from params import *
 import datetime as dt
 
@@ -11,22 +11,16 @@ import datetime as dt
 
 # rinexline = np.loadtxt("rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_Short.rnx", dtype=str)
 
-rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_Short.rnx"
+# rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO.rnx"
+rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_clipped.rnx"
+# rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_Short.rnx"
 # rinexfilename = "rinexfiles/ZAMB00ZMB_R_20200320000_01D_30S_MO_short.rnx"
 rinexdict = {}  # dictionary to dump as json later
 parameters = []
-identifier = {"G": "GPS", "R": "GLONASS", "S": "SBAS", "E": "Galileo", "C": "BeiDou", "J": "QZSS"}
+svidentifier = {"G": "GPS", "R": "GLONASS", "S": "SBAS", "E": "GALILEO", "C": "BEIDOU", "J": "QZSS"}
 # global prn
 anzahl = 0
 satt = ""
-
-
-def createtsdict(line):
-    """
-    creates dictionariy containing the timestamp data
-    :param line: Rinex file line
-    :return: None
-    """
 
 
 def channellog(line):
@@ -65,8 +59,8 @@ def channellog(line):
     l = len(sattype.returnparams())
 
     if l == 0:
-        # print(identifier[prn])
-        sattype.addtype(identifier[prn])
+        # print(svidentifier[prn])
+        sattype.addtype(svidentifier[prn])
         l += 1
 
     if l == 1:
@@ -76,8 +70,8 @@ def channellog(line):
     for i in range(positions):
         sattype.addband(str(line[7 + (i * 4):10 + (i * 4)]))
 
-    print(sattype.returnparams())
-    print(positions)
+    # print(sattype.returnparams())
+    # print(positions)
     return prn, numsat, sattype
 
 
@@ -86,51 +80,146 @@ def decodeepoch(line):
     Lines starting with ">" are converted to a single string containing the date from year to seconds
 
     :param line: rinex file line starting with ">"
-    :return: timestamp as string, number of observations (string)
+    :return: timestamp as string, count of observations (string)
     """
     timestamp = str(dt.datetime(int(line[2:6]), int(line[7:9]), int(line[10:12]), int(line[13:15]), int(line[16:18]),
                                 int(line[19:21].strip())))
     cobs = str(line[33:35])
     return timestamp, cobs
 
+
 def writetimeinfo(timestr):
-    timedict = {}
-    timedict["year"] = timestr[0:4]
-    timedict["month"] = timestr[5:7]
-    timedict["day"] = timestr[8:10]
-    timedict["hour"] = timestr[11:13]
-    timedict["minute"] = timestr[14:16]
-    timedict["second"] = timestr[17:19]
+    """
+    Takes a timestring from datetime and turns it into a dictionary
+    :param timestr: timestring from datetime
+    :return: dictionary in (yyyy-mm-dd hh:mm:ss)
+    """
+    timedict = {"year": timestr[0:4], "month": timestr[5:7], "day": timestr[8:10], "hour": timestr[11:13],
+                "minute": timestr[14:16], "second": timestr[17:19]}
     return timedict
 
+
 def decodeobservation(line):
-    pass
+    """
+
+    :param line: One line containing Rinex observation data. Starting with three chars identifying the SV
+    :return: Returns the letter and number identifying the SV e.g. 'G02'
+    """
+    identifier = line[0:3]  # e.g. "GO2"
+    prnidentifier = line[0:1]  # e.g. "G"
+    n = 0
+    parameterlist = []
+    if prnidentifier == "G":
+        parameterlist = GPS().returnparams()[1:]
+        n = parameterlist[0]
+    elif prnidentifier == "R":
+        parameterlist = GLONASS().returnparams()[1:]
+        n = parameterlist[0]
+    elif prnidentifier == "S":
+        parameterlist = SBAS().returnparams()[1:]
+        n = parameterlist[0]
+    elif prnidentifier == "E":
+        parameterlist = GALILEO().returnparams()[1:]
+        n = parameterlist[0]
+    elif prnidentifier == "C":
+        parameterlist = BEIDOU().returnparams()[1:]
+        n = parameterlist[0]
+    elif prnidentifier == "J":
+        parameterlist = QZSS().returnparams()[1:]
+        n = parameterlist[0]
+    else:
+        print("Warning! Unknown Sat. identifier")
+    codes = {}
+    for i in range(len(parameterlist)):
+        codes = {parameterlist[i]: line[0]}
+
+    obsdict = {"type": svidentifier[prnidentifier], "prn": line[1:3], "codes": {}}
+    return str(identifier), obsdict
+
+
+def decodeline(line, n):
+    """
+    decodes one line to combine all observations in one list
+    :param line: one observation line
+    :return: list containing all observations including blanks space (hopefully)
+    """
+    templist = []
+    for i in n:
+        line[5:18].strip()
+
+        templist.append(line)
+
+
+def codelist(prn):
+    """
+
+
+    :param prn:
+    :return:
+    """
+    if prn == "G":
+        return GPS().returnparams()
+    elif prn == "R":
+        return GLONASS().returnparams()
+    elif prn == "S":
+        return SBAS().returnparams()
+    elif prn == "E":
+        return GALILEO().returnparams()
+    elif prn == "C":
+        return BEIDOU().returnparams()
+    elif prn == "J":
+        return QZSS().returnparams()
+    else:
+        pass
 
 
 if __name__ == "__main__":
     timestamp = ""
     rinexFile = open(rinexfilename, "r")
     line = rinexFile.readline()
+
     while line[60:].rstrip() != "END OF HEADER":
         if line[60:].rstrip() == "PGM / RUN BY / DATE":
             if line[56:59].strip() != "UTC":
                 print(f"Warning! Timezone is not UTC. Found: {line[56:59]}")
         if line[60:].rstrip() == "SYS / # / OBS TYPES":
             prn2, anzahl, satt = channellog(line)
+            # print(prn2, anzahl, satt.returnparams())
         line = rinexFile.readline()
+
+    print("INFO! Header decoded.")
 
     line = rinexFile.readline()
 
+    counter = 1
+    cdict = {}
     while True:
-        if line[0:1] == ">":
-            print("Found on Epoch")
+        if line[0:1] == ">":  # Anfang der Eopche, gekennzeichnet mit ">"
+            counter = 1
             timestamp, obscount = decodeepoch(line)
             rinexdict[timestamp] = writetimeinfo(timestamp)
             rinexdict[timestamp]["observation count"] = obscount
+            rinexdict[timestamp]["observations"] = {}
+
+        elif line[0:1] != "":  # eine Zeile der observation
+            key, odict = decodeobservation(line)
+            values = line[3:].rstrip().split(" ")
+            values = [_ for _ in values if _ != '']
+            codes = codelist(key[0])[2:]
+            if len(values) == int(codelist(key[0])[1]):
+                odict["codes"] = dict(zip(codes, values))
+            else:
+                print(f"Missing Values in epoch {timestamp} row {counter - 1}")
+
+            rinexdict[timestamp]["observations"][key] = odict
+
+        else:
+            print("end of File reached")
+            exit()
+            pass
+
+        line = rinexFile.readline()
+        if (counter == int(obscount)):
             with open("results/output1.json", "w+") as jsonfile:
                 json.dump(rinexdict, jsonfile)
-        else:
-            decodeobservation(line)
-            rinexdict[timestamp] = {}
-            pass
-        line = rinexFile.readline()
+        counter += 1
