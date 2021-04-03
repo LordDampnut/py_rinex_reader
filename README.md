@@ -5,13 +5,11 @@ This programm was tested with the included RINEX file (version 3.02) but i want 
 vesions too. It wont catch errors yet but that could change in the near future. 
 
 # ToDo
-* JSON output file
+* ~JSON output file~
 * GUI with some sort of interaction
     * Load different RINEX file?
     * DIsplay metadata of choosen file?
     
-* Use of dictionaries
-* JSON dump
+* ~Use of dictionaries~
+* ~JSON dump~
 * Clean up header reading code  
-* ???
-* profit (jk)
