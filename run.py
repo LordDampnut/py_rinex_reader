@@ -8,17 +8,12 @@ import datetime as dt
 # {"2018-05-21 00:00:00": {"Year": "2018", "Month": "05", "Day": "21", "hour": "00", "minute": "00", "second": "00", "observation count": "27","Observations": {"G02": {"Type": "GPS", "Name": "02","Bands": { "freq1": "number xyz", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd"}}, "G03": {"Type": "GPS", "Name": "03","Bands": { "freq1": "number xyz", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd"}}
 # }}}
 
-
-# rinexline = np.loadtxt("rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_Short.rnx", dtype=str)
-
-# rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO.rnx"
-rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_clipped.rnx"
+rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO.rnx"
+# rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_clipped.rnx"
 # rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_Short.rnx"
 # rinexfilename = "rinexfiles/ZAMB00ZMB_R_20200320000_01D_30S_MO_short.rnx"
 rinexdict = {}  # dictionary to dump as json later
-parameters = []
 svidentifier = {"G": "GPS", "R": "GLONASS", "S": "SBAS", "E": "GALILEO", "C": "BEIDOU", "J": "QZSS"}
-# global prn
 anzahl = 0
 satt = ""
 
@@ -59,7 +54,6 @@ def channellog(line):
     l = len(sattype.returnparams())
 
     if l == 0:
-        # print(svidentifier[prn])
         sattype.addtype(svidentifier[prn])
         l += 1
 
@@ -70,8 +64,6 @@ def channellog(line):
     for i in range(positions):
         sattype.addband(str(line[7 + (i * 4):10 + (i * 4)]))
 
-    # print(sattype.returnparams())
-    # print(positions)
     return prn, numsat, sattype
 
 
@@ -152,10 +144,10 @@ def decodeline(line, n):
 
 def codelist(prn):
     """
+    Takes a char and returns the observation codes
 
-
-    :param prn:
-    :return:
+    :param prn: char describing the SV e.g. 'G' for GPS
+    :return: List containing the previously analyzed transponder codes
     """
     if prn == "G":
         return GPS().returnparams()
@@ -214,12 +206,10 @@ if __name__ == "__main__":
             rinexdict[timestamp]["observations"][key] = odict
 
         else:
-            print("end of File reached")
-            exit()
-            pass
-
-        line = rinexFile.readline()
-        if (counter == int(obscount)):
             with open("results/output1.json", "w+") as jsonfile:
                 json.dump(rinexdict, jsonfile)
+            print("end of File reached")
+            exit(10)
+
+        line = rinexFile.readline()
         counter += 1
