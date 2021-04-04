@@ -178,8 +178,8 @@ if __name__ == "__main__":
             print("\trun.py [RINEX FILE or OPTION]")
             print("\tOption:\n")
             print("\t-h | --help    : print help")
-            print("\tNote: Output filename will be input file name as .JSON file.")
-            print("\n\tNote, for every row missing a value a print command with more info will be issued!\n")
+            print("\tNote: Output filename will be input file name as .JSON file.\n")
+            print("\tNote: for every row missing a value a print command with more info will be issued!\n")
             exit(0)
 
         rinexfilename = sys.argv[1]
