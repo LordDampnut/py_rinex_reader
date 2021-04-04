@@ -179,6 +179,7 @@ if __name__ == "__main__":
             print("\tOption:\n")
             print("\t-h | --help    : print help")
             print("\tNote: Output filename will be input file name as .JSON file.\n")
+            print("\tOutput file will be in the same folder as input file!\n")
             print("\tNote: for every row missing a value a print command with more info will be issued!\n")
             exit(0)
 
