@@ -14,7 +14,7 @@ rinexdict = {}  # dictionary to dump as json later
 svidentifier = {"G": "GPS", "R": "GLONASS", "S": "SBAS", "E": "GALILEO", "C": "BEIDOU", "J": "QZSS"}
 anzahl = 0
 satt = ""
-
+timestamp = ""
 argc = len(sys.argv)
 
 
