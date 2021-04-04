@@ -1,7 +1,5 @@
-# import os
-# import numpy as np
 import json
-# import params
+import sys
 from params import *
 import datetime as dt
 
@@ -16,6 +14,8 @@ rinexdict = {}  # dictionary to dump as json later
 svidentifier = {"G": "GPS", "R": "GLONASS", "S": "SBAS", "E": "GALILEO", "C": "BEIDOU", "J": "QZSS"}
 anzahl = 0
 satt = ""
+
+argc = len(sys.argv)
 
 
 def channellog(line):
@@ -166,7 +166,26 @@ def codelist(prn):
 
 
 if __name__ == "__main__":
-    timestamp = ""
+
+    if argc < 2:
+        print("No arguments given, using example file.")
+        jsonfilename = "example_output.json"
+    else:
+        if sys.argv[1] == "-h" or sys.argv[1] == "--help":
+            print("\tCrude RINEX to JSON converter\n")
+            print("\tThis decoder was tested with two 'mixed' type RINEX files version 3.02 and above!\n")
+            print("\tUsage:\n")
+            print("\trun.py [RINEX FILE or OPTION]")
+            print("\tOption:\n")
+            print("\t-h | --help    : print help")
+            print("\tNote: Output filename will be input file name as .JSON file.")
+            print("\n\tNote, for every row missing a value a print command with more info will be issued!\n")
+            exit(0)
+
+        rinexfilename = sys.argv[1]
+        jsonfilename = rinexfilename[:-3] + "json"
+
+    # timestamp = ""
     rinexFile = open(rinexfilename, "r")
     line = rinexFile.readline()
 
@@ -206,9 +225,10 @@ if __name__ == "__main__":
             rinexdict[timestamp]["observations"][key] = odict
 
         else:
-            with open("results/output1.json", "w+") as jsonfile:
+            print("Writing output file, please wait...")
+            with open(jsonfilename, "w+") as jsonfile:
                 json.dump(rinexdict, jsonfile)
-            print("end of File reached")
+            print("Process finished.")
             exit(10)
 
         line = rinexFile.readline()
