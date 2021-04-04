@@ -6,7 +6,7 @@ import datetime as dt
 # {"2018-05-21 00:00:00": {"Year": "2018", "Month": "05", "Day": "21", "hour": "00", "minute": "00", "second": "00", "observation count": "27","Observations": {"G02": {"Type": "GPS", "Name": "02","Bands": { "freq1": "number xyz", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd"}}, "G03": {"Type": "GPS", "Name": "03","Bands": { "freq1": "number xyz", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd", "freq2": "number asd"}}
 # }}}
 
-rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO.rnx"
+rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MOasd.rnx"
 # rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_clipped.rnx"
 # rinexfilename = "rinexfiles/ABMF00GLP_R_20181410000_01D_30S_MO_Short.rnx"
 # rinexfilename = "rinexfiles/ZAMB00ZMB_R_20200320000_01D_30S_MO_short.rnx"
@@ -186,8 +186,16 @@ if __name__ == "__main__":
         jsonfilename = rinexfilename[:-3] + "json"
 
     # timestamp = ""
-    rinexFile = open(rinexfilename, "r")
-    line = rinexFile.readline()
+    if rinexfilename[-3:] != "rnx":
+        print("File format other than .rnx not supported")
+        exit()
+
+    try:
+        rinexFile = open(rinexfilename, "r")
+        line = rinexFile.readline()
+    except FileNotFoundError:
+        print("File could not be found!")
+        exit()
 
     while line[60:].rstrip() != "END OF HEADER":
         if line[60:].rstrip() == "PGM / RUN BY / DATE":
